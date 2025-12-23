@@ -1,65 +1,159 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Mail, Lock, Apple, Facebook, Timer, Chrome, User } from "lucide-react";
+
+export default function LoginPage() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAuth = async () => {
+    setError('');
+    setLoading(true);
+
+    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+    const payload = isLogin
+      ? { email: formData.email, password: formData.password }
+      : { name: formData.name, email: formData.email, password: formData.password };
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      // Success
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userName', data.user?.name || 'User');
+      router.push('/home');
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-8">
+      {/* Logo/Brand */}
+      <div className="mb-10 flex flex-col items-center">
+        <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-primary text-white shadow-sm transition-transform hover:scale-105">
+          <Timer size={48} strokeWidth={2.5} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        <h1 className="text-2xl font-bold text-gray-900">{isLogin ? 'Welcome Back!' : 'Create Account'}</h1>
+      </div>
+
+      {/* Forms */}
+      <div className="w-full space-y-4">
+        {/* Name Input (Signup Only) */}
+        {!isLogin && (
+          <div className="relative animate-in fade-in slide-in-from-top-4 duration-300">
+            <User className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-gray-200 bg-white py-3.5 pl-12 pr-4 text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+        )}
+
+        <div className="relative">
+          <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email address"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-gray-200 bg-white py-3.5 pl-12 pr-4 text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
         </div>
-      </main>
+        <div className="relative">
+          <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-gray-200 bg-white py-3.5 pl-12 pr-4 text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
+
+        {error && (
+          <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg text-center font-medium">
+            {error}
+          </div>
+        )}
+
+        <button
+          onClick={handleAuth}
+          disabled={loading}
+          className="flex w-full items-center justify-center rounded-xl bg-primary py-3.5 text-base font-bold text-white shadow-sm hover:bg-primary-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Processing...' : (isLogin ? 'Login' : 'Sign up')}
+        </button>
+
+        <div className="flex justify-center py-2">
+          <button
+            onClick={() => { setIsLogin(!isLogin); setError(''); }}
+            className="text-sm font-medium text-gray-500 hover:text-gray-900"
+          >
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
+          </button>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="relative my-6 w-full opacity-50">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white px-4 text-gray-500">or</span>
+        </div>
+      </div>
+
+      {/* Social Login - Vertical Stack */}
+      <div className="w-full space-y-3">
+        <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50">
+          <Apple size={20} className="fill-current" />
+          Continue with Apple
+        </button>
+        <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50">
+          <Chrome size={20} className="text-gray-900" />
+          Continue with Google
+        </button>
+        <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50">
+          <Facebook size={20} className="text-blue-600 fill-current" />
+          Continue with Facebook
+        </button>
+      </div>
     </div>
   );
 }
