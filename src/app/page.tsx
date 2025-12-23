@@ -17,7 +17,7 @@ export default function LoginPage() {
     password: ''
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -48,7 +48,7 @@ export default function LoginPage() {
       localStorage.setItem('userName', data.user?.name || 'User');
       router.push('/home');
 
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
