@@ -13,7 +13,7 @@ export default function HealthPage() {
         waterIntake: 0
     });
     const [weightInput, setWeightInput] = useState('');
-    const [fitnessLogs, setFitnessLogs] = useState([]);
+    const [fitnessLogs, setFitnessLogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Edit states
@@ -46,7 +46,7 @@ export default function HealthPage() {
             const logsJson = await logsRes.json();
 
             if (logsJson.success) {
-                const fitness = logsJson.data.filter((log) => log.category === 'Fitness');
+                const fitness = logsJson.data.filter((log: any) => log.category === 'Fitness');
                 setFitnessLogs(fitness);
             }
 
@@ -61,10 +61,10 @@ export default function HealthPage() {
         fetchData();
     }, []);
 
-    const updateHealth = async (field, value) => {
+    const updateHealth = async (field: string, value: any) => {
         try {
             const token = localStorage.getItem('token');
-            const body = {};
+            const body: any = {};
             body[field] = value;
 
             const res = await fetch('/api/health', {
@@ -214,7 +214,7 @@ export default function HealthPage() {
 
                     {fitnessLogs.length > 0 ? (
                         <div className="space-y-4">
-                            {fitnessLogs.map((log, i) => (
+                            {fitnessLogs.map((log: any, i: number) => (
                                 <TimelineItem
                                     key={log._id}
                                     time={log.time}
