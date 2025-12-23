@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import dbConnect from '@/lib/db';
 import DailySummary from '@/models/DailySummary';
 import { verifyAuth } from '@/lib/auth';
