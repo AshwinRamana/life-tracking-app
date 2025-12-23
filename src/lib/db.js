@@ -16,8 +16,9 @@ if (!cached) {
 async function dbConnect() {
     const uri = process.env.MONGODB_URI;
     if (!uri) {
+        const envKeys = Object.keys(process.env).join(', ');
         throw new Error(
-            'Please define the MONGODB_URI environment variable inside Amplify/Environment Variables'
+            `MONGODB_URI is undefined. Available keys: [${envKeys || 'none'}]. Please check Amplify Console -> Hosting -> Environment Variables and ensure they are assigned to your branch.`
         );
     }
     if (cached.conn) {
